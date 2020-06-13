@@ -72,6 +72,14 @@ function ApagarRiego () {
 input.onButtonPressed(Button.A, function () {
     EncenderRiego()
 })
+function MedidaSensores () {
+    NivelDeposito = pins.analogReadPin(AnalogPin.P2)
+    serial.writeValue("nivelDeposito", NivelDeposito)
+    ValorSensorLluvia = pins.analogReadPin(AnalogPin.P1)
+    serial.writeValue("SensorLluvia", ValorSensorLluvia)
+    HumedadSuelo = 1023 - pins.analogReadPin(AnalogPin.P0)
+    serial.writeValue("HumedadSuelo", HumedadSuelo)
+}
 input.onButtonPressed(Button.B, function () {
     ApagarRiego()
 })
@@ -79,16 +87,13 @@ function RevisarHumedadSuelo () {
     if (HumedadSuelo < HumedadParaRiego) {
         EncenderRiego()
         while (HumedadSuelo < HumedadParaRiego && ValorSensorLluvia > SensorLluviaMojado) {
-            HumedadSuelo = 1023 - pins.analogReadPin(AnalogPin.P0)
-            ValorSensorLluvia = pins.analogReadPin(AnalogPin.P1)
+            MedidaSensores()
         }
-        ApagarRiego()
-    } else {
         ApagarRiego()
     }
 }
-let ValorSensorLluvia = 0
 let HumedadSuelo = 0
+let ValorSensorLluvia = 0
 let NivelDeposito = 0
 let SensorLluviaMojado = 0
 let HumedadParaRiego = 0
@@ -98,12 +103,7 @@ AlarmaNivelAgua = 400
 HumedadParaRiego = 500
 SensorLluviaMojado = 800
 basic.forever(function () {
-    NivelDeposito = pins.analogReadPin(AnalogPin.P2)
-    serial.writeValue("nivelDeposito", NivelDeposito)
-    ValorSensorLluvia = pins.analogReadPin(AnalogPin.P1)
-    serial.writeValue("SensorLluvia", ValorSensorLluvia)
-    HumedadSuelo = 1023 - pins.analogReadPin(AnalogPin.P0)
-    serial.writeValue("HumedadSuelo", HumedadSuelo)
+    MedidaSensores()
     MostrarNivelAgua()
     RevisarHumedadSuelo()
 })
